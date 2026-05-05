@@ -1,0 +1,22 @@
+{
+  "name": "team",
+  "version": "0.1.0",
+  "description": "Council-style codebase-to-pitch plugin. A 12-seat team across four subcommittees (research, business, technical, skeptics) takes your code and produces a pitch with risks, kill criteria, and a verification plan.",
+  "author": {
+    "name": "Luke Steuber",
+    "url": "https://github.com/lukeslp"
+  },
+  "homepage": "https://github.com/actually-useful-ai/team",
+  "repository": "https://github.com/actually-useful-ai/team",
+  "license": "MIT",
+  "keywords": [
+    "product",
+    "pitch",
+    "business-model",
+    "go-to-market",
+    "multi-agent",
+    "council",
+    "review",
+    "monetization"
+  ]
+}
