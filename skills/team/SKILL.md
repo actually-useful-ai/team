@@ -14,13 +14,37 @@ This is a read-only skill. The team produces a verdict; it never edits the codeb
 
 ## Routing
 
-`/team` accepts:
+`/team` accepts a path, a question, or a scope flag:
 
 - **A path** (`/team src/`, `/team ~/projects/whatcolor`): pitch this codebase.
-- **No args** (`/team`): pitch the current working directory.
+- **No args** (`/team`): if the input is ambiguous, use AskUserQuestion to pick a scope (full council vs. one committee). If unambiguous, pitch the current working directory in full mode.
 - **A quoted question** (`/team "Should I open-source this?"`): team debates the question with the codebase as context.
 
-Detection: file/directory path → pitch mode. Quoted text or text containing a question mark → debate mode.
+### Scope flags (limit which committees run)
+
+| Flag | What runs | Use when |
+|------|-----------|----------|
+| `--full` (default) | All 4 committees + executive synthesis | You want the whole pitch with adversarial review |
+| `--business` | Research + Business committee only (marketing/legal/manager) | You only want the audience + positioning + monetization + IP picture |
+| `--technical` | Research + Technical committee only (architect/greybeard/safety/tester) | You only want the engineering reality check |
+| `--skeptics` | Research + Skeptics committee only (breaker/cynic) | You want the pitch attacked but already drafted it elsewhere |
+| `--research` | Recon + scout only | You want the facts (codebase map + market context) without verdicts |
+| `--pitch-only` | Skip skeptics committee | You want a confident pitch with technical fit but without adversarial counterweight |
+
+Sub-flag aliases: `--biz`, `--tech`, `--skep`, `--rsrch`. Companion commands: `/team:business`, `/team:technical`, `/team:skeptics`, `/team:research` are thin wrappers for the scope flags.
+
+### Decision picker
+
+When `/team` is called with no args AND the cwd is small/ambiguous (say, fewer than 5 source files), the executive opens an AskUserQuestion picker offering:
+- Full council
+- Business committee only
+- Technical committee only
+- Skeptics only (attack an existing pitch)
+- Research only (just the facts)
+
+The picker is for ergonomics; experienced users skip it by passing a flag.
+
+Detection: file/directory path → pitch mode. Quoted text or text containing a question mark → debate mode. Scope flags override scope but don't change pitch vs. debate mode.
 
 ---
 
@@ -30,10 +54,26 @@ Detection: file/directory path → pitch mode. Quoted text or text containing a 
 
 The executive runs this phase.
 
-1. **Restate the input** in one sentence: what is the team being asked to pitch or decide?
-2. **Define acceptance criteria**: what would a good answer include? For pitch mode, default criteria: audience specificity, monetization plausibility, top three risks, kill criteria, internal consistency, legal coherence, novelty over the obvious-pitch baseline.
-3. **Detect consultants**: run `which codex gemini cursor-agent`, check `~/documentation/API_KEYS.md` for `XAI_API_KEY`, `OPENAI_API_KEY`, `MISTRAL_API_KEY`, `PERPLEXITY_API_KEY`. Note which seats can fan out and which run alone.
-4. **Announce the team**: list the seats, note any that lose their consultants.
+1. **Detect scope** from input flags. Default `--full` if none given. If no args at all, optionally open the decision picker.
+2. **Restate the input** in one sentence: what is the team being asked to pitch or decide?
+3. **Define acceptance criteria**: what would a good answer include? For pitch mode, default criteria: audience specificity, monetization plausibility, top three risks, kill criteria, internal consistency, legal coherence, novelty over the obvious-pitch baseline. For partial-scope runs, drop the criteria that the skipped committee would have produced.
+4. **Detect consultants**: run `which codex gemini cursor-agent`, check `~/documentation/API_KEYS.md` for `XAI_API_KEY`, `OPENAI_API_KEY`, `MISTRAL_API_KEY`, `PERPLEXITY_API_KEY`. Note which seats can fan out and which run alone.
+5. **Announce the team**: list the seats that will run for the chosen scope, note any that lose their consultants.
+
+### Scope filtering
+
+Based on the flag, the executive runs only the relevant committees:
+
+| Scope | Phase 2 | Phase 3 |
+|-------|---------|---------|
+| `--full` | recon + scout | Business + Technical + Skeptics |
+| `--business` | recon + scout | Business only |
+| `--technical` | recon + scout | Technical only |
+| `--skeptics` | recon (skip scout if pitch already drafted) | Skeptics only |
+| `--research` | recon + scout | (skip Phase 3 entirely; output is just the facts) |
+| `--pitch-only` | recon + scout | Business + Technical (skip Skeptics) |
+
+Phase 4 synthesis adapts: a single-committee scope produces a focused report rather than the full executive verdict. `--research` skips synthesis entirely and outputs a research-bundle.
 
 ### Phase 2: Research (parallel, no opinions)
 
