@@ -11,7 +11,7 @@
       "name": "team",
       "source": "./",
       "description": "Council-style product/business pitch from a codebase. 4 subcommittees (research, business, technical, skeptics) feed an executive chair. Optional consultant fan-out to external models.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "product",
       "homepage": "https://github.com/actually-useful-ai/team"
     }
