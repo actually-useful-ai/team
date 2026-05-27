@@ -1,6 +1,6 @@
 ---
 name: technical
-description: "Just the technical committee of /team: architect + greybeard + safety + tester. Skips business and skeptics. Use when you only want the engineering reality check."
+description: "Just the technical committee of /team: architect + greybeard + safety + tester. Skips the skeptics committee and the legal check. Use when you only want the engineering reality check."
 allowed-tools: Read, Grep, Glob, Bash, Agent
 ---
 
@@ -13,14 +13,14 @@ Routes to the `team` skill with `--technical` scope. Runs research (recon + scou
 - `safety` — failure recovery, fallbacks, graceful degradation
 - `tester` — verification, regression criteria
 
-Skips Business and Skeptics committees. Output is a focused Technical report.
+Skips the Skeptics committee and the legal check. Output is a focused Technical report.
 
 See `skills/team/SKILL.md` for the full council protocol. This skill is a scope shortcut.
 
 ## Procedure
 
 1. Treat input as a path or question per `/team:team` routing.
-2. Skip the Business and Skeptics committees.
+2. Skip the Skeptics committee and the legal check.
 3. Run Research (recon + scout) and Technical committee in parallel.
 4. Produce a Technical report (not a full executive verdict):
    - Architectural fit (architect's verdict, migration cost)
@@ -31,4 +31,4 @@ See `skills/team/SKILL.md` for the full council protocol. This skill is a scope 
 
 ## Handoffs
 
-`/team:team` for the full council. `/team:business` for the audience + monetization view. `/team:skeptics` to attack the resulting technical plan.
+`/team:team` for the full council. `/team:skeptics` to attack the resulting technical plan.

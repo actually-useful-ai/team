@@ -1,8 +1,8 @@
 # team
 
-Council-style codebase-to-pitch plugin for Claude Code.
+Council-style codebase-assessment plugin for Claude Code.
 
-Point it at a codebase. A 12-seat team across four subcommittees (research, business, technical, skeptics) decides what it is, who buys it, what kills it, and how to know whether the pitch is any good.
+Point it at a codebase. A 10-seat team across three subcommittees (research, technical, skeptics) plus a standalone legal red-flag check decides what it is, where it fits, what breaks it, what kills it, and how to know whether the assessment is any good.
 
 ## Install
 
@@ -11,9 +11,9 @@ This plugin lives in `~/.claude/plugins/marketplaces/lukeslp-team/`. Add the mar
 ## Usage
 
 ```bash
-/team                            # pitch the current directory
-/team src/                       # pitch a specific path
-/team ~/projects/whatcolor       # pitch a project elsewhere on disk
+/team                            # assess the current directory
+/team src/                       # assess a specific path
+/team ~/projects/whatcolor       # assess a project elsewhere on disk
 /team "Should I open-source this?"   # team debate on a question
 ```
 
@@ -22,9 +22,10 @@ This plugin lives in `~/.claude/plugins/marketplaces/lukeslp-team/`. Add the mar
 A short verdict from the executive chair, structured as:
 
 - **Decision**: one line.
-- **The pitch**: product, audience, positioning, monetization.
-- **What kills it**: kill criteria, top three risks, who would say no.
-- **Verification plan**: how to know if the pitch is right.
+- **The assessment**: what it is, where it fits, what it's good for.
+- **What kills it**: kill criteria, top three risks, the strongest attack.
+- **Verification plan**: how to know if the assessment is right.
+- **Legal red flags**: license/IP blockers, or all-clear.
 - **Dissenting opinions**: preserved, not flattened.
 - **Consultant notes**: what external models said when they could be reached.
 
@@ -32,25 +33,23 @@ A short verdict from the executive chair, structured as:
 
 **Research (facts, not opinions)**
 - `recon`: maps the codebase. Languages, dependencies, public surfaces, internal patterns.
-- `scout`: external prior art. Comparable products, market context. Optional consult: Perplexity, Gemini.
-
-**Business**
-- `marketing`: audience, positioning, GTM. Encodes Geoffrey Moore (*Crossing the Chasm*), April Dunford (*Obviously Awesome*), Jobs-to-be-Done, the Bullseye framework. Optional consult: Gemini, Grok.
-- `legal`: IP, licensing, can-this-actually-be-sold. Looks at every dep's license and the project's own.
-- `manager`: maintenance cost, debt, runway. Encodes the SQALE method, Cunningham/Fowler's debt quadrant.
+- `scout`: external prior art. Comparable projects, technical approaches. Optional consult: Perplexity, Gemini.
 
 **Technical**
-- `architect`: fit with the existing codebase patterns.
+- `architect`: fit with the existing codebase patterns. Chairs the committee.
 - `greybeard`: old-engineer review of what breaks at 10x. Encodes the Google SRE Book (chapter 22, four golden signals), Brendan Gregg's USE method. Optional consult: Codex, Grok.
 - `safety`: failure recovery, fallbacks, graceful degradation.
 - `tester`: verification strategy, regression criteria.
 
 **Skeptics**
-- `breaker`: adversarial attack on the pitch. Concrete failure scenarios only.
+- `breaker`: adversarial attack on the assessment. Concrete failure scenarios only.
 - `cynic`: pre-mortem (Klein 2007), kill criteria (Annie Duke), Amazon working-backwards critique. Must always disagree. Optional consult: full `/consensus` fan-out.
 
+**Legal check (standalone)**
+- `legal`: IP, licensing, attribution. A red-flag list of license/IP blockers that would stop the project from being shipped or open-sourced. Looks at every dep's license and the project's own.
+
 **Chair and polish**
-- `executive`: reads four committee reports, synthesizes the verdict, preserves dissent.
+- `executive`: reads the committee reports plus the legal list, synthesizes the verdict, preserves dissent.
 - `editor`: strips machine-generated writing indicators. Post-verdict only.
 
 ## Consultants
@@ -61,7 +60,7 @@ The full fan-out lives at `skills/consensus/` and is invoked by the cynic seat a
 
 ## Why a council and not a single pass
 
-A single LLM pass will produce a pitch that sounds confident regardless of merit. Adversarial review: especially from seats anchored to canonical frameworks (Moore, Dunford, SRE Book, SQALE, Klein), catches the failure modes a confident single pass misses. The subcommittee structure prevents the executive from drowning in twelve voices.
+A single LLM pass will produce an assessment that sounds confident regardless of merit. Adversarial review: especially from seats anchored to canonical frameworks (SRE Book, USE method, Klein pre-mortem, Annie Duke kill criteria), catches the failure modes a confident single pass misses. The subcommittee structure prevents the executive from drowning in ten voices.
 
 The design is sympathetic to the parallel-critics + single-synthesis pattern that holds up better in recent multi-agent research (arxiv 2509.05396, 2025) than round-table debate.
 

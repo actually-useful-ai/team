@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "lukeslp-team",
-  "description": "Council-style codebase-to-pitch plugin: a 12-seat team takes your code and tells you what to sell, who to sell it to, and what will kill it",
+  "description": "Council-style codebase-assessment plugin: a 10-seat team takes your code and tells you what it is, what breaks it, what kills it, and any legal red flags",
   "owner": {
     "name": "Luke Steuber",
     "email": "luke@lukesteuber.com"
@@ -10,7 +10,7 @@
     {
       "name": "team",
       "source": "./",
-      "description": "Council-style product/business pitch from a codebase. 4 subcommittees (research, business, technical, skeptics) feed an executive chair. Optional consultant fan-out to external models.",
+      "description": "Council-style technical assessment of a codebase. Three subcommittees (research, technical, skeptics) plus a standalone legal red-flag check feed an executive chair. Optional consultant fan-out to external models.",
       "version": "0.1.1",
       "category": "product",
       "homepage": "https://github.com/actually-useful-ai/team"

@@ -1,12 +1,12 @@
 ---
 name: team
-description: "Codebase-to-pitch council. A 12-seat team across four subcommittees turns code into a product pitch with adversarial review, kill criteria, and a verification plan."
+description: "Codebase-assessment council. A 10-seat team across three subcommittees plus a standalone legal red-flag check turns code into a defensible technical assessment with adversarial review, kill criteria, and a verification plan."
 allowed-tools: Read, Grep, Glob, Bash, Agent, WebSearch, WebFetch
 ---
 
 # /team
 
-Take a codebase. Hand it to the team. Get back a pitch you can defend.
+Take a codebase. Hand it to the team. Get back an assessment you can defend.
 
 <HARD-GATE>
 This is a read-only skill. The team produces a verdict; it never edits the codebase. If a seat suggests a code change, route it through `/elegance` instead.
@@ -16,35 +16,33 @@ This is a read-only skill. The team produces a verdict; it never edits the codeb
 
 `/team` accepts a path, a question, or a scope flag:
 
-- **A path** (`/team src/`, `/team ~/projects/whatcolor`): pitch this codebase.
-- **No args** (`/team`): if the input is ambiguous, use AskUserQuestion to pick a scope (full council vs. one committee). If unambiguous, pitch the current working directory in full mode.
+- **A path** (`/team src/`, `/team ~/projects/whatcolor`): assess this codebase.
+- **No args** (`/team`): if the input is ambiguous, use AskUserQuestion to pick a scope (full council vs. one committee). If unambiguous, assess the current working directory in full mode.
 - **A quoted question** (`/team "Should I open-source this?"`): team debates the question with the codebase as context.
 
 ### Scope flags (limit which committees run)
 
 | Flag | What runs | Use when |
 |------|-----------|----------|
-| `--full` (default) | All 4 committees + executive synthesis | You want the whole pitch with adversarial review |
-| `--business` | Research + Business committee only (marketing/legal/manager) | You only want the audience + positioning + monetization + IP picture |
+| `--full` (default) | Both committees + legal check + executive synthesis | You want the whole assessment with adversarial review |
 | `--technical` | Research + Technical committee only (architect/greybeard/safety/tester) | You only want the engineering reality check |
-| `--skeptics` | Research + Skeptics committee only (breaker/cynic) | You want the pitch attacked but already drafted it elsewhere |
-| `--research` | Recon + scout only | You want the facts (codebase map + market context) without verdicts |
-| `--pitch-only` | Skip skeptics committee | You want a confident pitch with technical fit but without adversarial counterweight |
+| `--skeptics` | Research + Skeptics committee only (breaker/cynic) | You want the proposal attacked but already drafted it elsewhere |
+| `--research` | Recon + scout only | You want the facts (codebase map + prior-art context) without verdicts |
+| `--no-skeptics` | Skip skeptics committee | You want technical fit + legal red flags without the adversarial counterweight |
 
-Sub-flag aliases: `--biz`, `--tech`, `--skep`, `--rsrch`. Companion commands: `/team:business`, `/team:technical`, `/team:skeptics`, `/team:research` are thin wrappers for the scope flags.
+Sub-flag aliases: `--tech`, `--skep`, `--rsrch`. Companion commands: `/team:technical`, `/team:skeptics`, `/team:research` are thin wrappers for the scope flags.
 
 ### Decision picker
 
 When `/team` is called with no args AND the cwd is small/ambiguous (say, fewer than 5 source files), the executive opens an AskUserQuestion picker offering:
 - Full council
-- Business committee only
 - Technical committee only
-- Skeptics only (attack an existing pitch)
+- Skeptics only (attack an existing proposal)
 - Research only (just the facts)
 
 The picker is for ergonomics; experienced users skip it by passing a flag.
 
-Detection: file/directory path → pitch mode. Quoted text or text containing a question mark → debate mode. Scope flags override scope but don't change pitch vs. debate mode.
+Detection: file/directory path → assess mode. Quoted text or text containing a question mark → debate mode. Scope flags override scope but don't change assess vs. debate mode.
 
 ---
 
@@ -55,8 +53,8 @@ Detection: file/directory path → pitch mode. Quoted text or text containing a 
 The executive runs this phase.
 
 1. **Detect scope** from input flags. Default `--full` if none given. If no args at all, optionally open the decision picker.
-2. **Restate the input** in one sentence: what is the team being asked to pitch or decide?
-3. **Define acceptance criteria**: what would a good answer include? For pitch mode, default criteria: audience specificity, monetization plausibility, top three risks, kill criteria, internal consistency, legal coherence, novelty over the obvious-pitch baseline. For partial-scope runs, drop the criteria that the skipped committee would have produced.
+2. **Restate the input** in one sentence: what is the team being asked to assess or decide?
+3. **Define acceptance criteria**: what would a good answer include? For assess mode, default criteria: architectural fit, top three risks, kill criteria, verification rigor, legal red flags, internal consistency. For partial-scope runs, drop the criteria that the skipped committee would have produced.
 4. **Detect consultants**: run `which codex gemini cursor-agent`, check `~/documentation/API_KEYS.md` for `XAI_API_KEY`, `OPENAI_API_KEY`, `MISTRAL_API_KEY`, `PERPLEXITY_API_KEY`. Note which seats can fan out and which run alone.
 5. **Announce the team**: list the seats that will run for the chosen scope, note any that lose their consultants.
 
@@ -66,12 +64,11 @@ Based on the flag, the executive runs only the relevant committees:
 
 | Scope | Phase 2 | Phase 3 |
 |-------|---------|---------|
-| `--full` | recon + scout | Business + Technical + Skeptics |
-| `--business` | recon + scout | Business only |
+| `--full` | recon + scout | Technical + Skeptics + legal check |
 | `--technical` | recon + scout | Technical only |
-| `--skeptics` | recon (skip scout if pitch already drafted) | Skeptics only |
+| `--skeptics` | recon (skip scout if proposal already drafted) | Skeptics only |
 | `--research` | recon + scout | (skip Phase 3 entirely; output is just the facts) |
-| `--pitch-only` | recon + scout | Business + Technical (skip Skeptics) |
+| `--no-skeptics` | recon + scout | Technical + legal check (skip Skeptics) |
 
 Phase 4 synthesis adapts: a single-committee scope produces a focused report rather than the full executive verdict. `--research` skips synthesis entirely and outputs a research-bundle.
 
@@ -80,20 +77,13 @@ Phase 4 synthesis adapts: a single-committee scope produces a focused report rat
 Launch in parallel:
 
 - `recon`: internal codebase map (languages, deps, public surfaces, patterns, deployment context).
-- `scout`: external prior art and market scan. May consult Perplexity (web), Gemini (broad knowledge).
+- `scout`: external prior art scan. May consult Perplexity (web), Gemini (broad knowledge).
 
 Wait for both to complete before Phase 3.
 
 ### Phase 3: Committees (parallel, opinions allowed)
 
-Three committees run in parallel. Each committee has its own internal chair (which is the seat itself for single-seat committees, or designated below) that produces ONE synthesized report for that committee.
-
-**Business committee** (chair: marketing)
-- `marketing`: audience, positioning, GTM, pricing. Encodes Moore (*Crossing the Chasm*), Dunford (*Obviously Awesome*), Jobs-to-be-Done, Bullseye. May consult Gemini, Grok.
-- `legal`: IP, licensing, can-this-actually-be-sold.
-- `manager`: maintenance cost, debt, runway. Encodes SQALE method, Cunningham/Fowler quadrant.
-
-Output: one Business committee report covering audience, monetization, legal posture, and runway cost.
+Two committees plus a standalone legal check run in parallel. Each committee has its own internal chair (which is the seat itself for single-seat committees, or designated below) that produces ONE synthesized report for that committee.
 
 **Technical committee** (chair: architect)
 - `architect`: fit with existing patterns.
@@ -104,10 +94,15 @@ Output: one Business committee report covering audience, monetization, legal pos
 Output: one Technical committee report covering fit, scaling risks, failure recovery, and verification.
 
 **Skeptics committee** (chair: cynic)
-- `breaker`: adversarial attack on the pitch (concrete failure scenarios only).
+- `breaker`: adversarial attack on the proposal (concrete failure scenarios only).
 - `cynic`: pre-mortem (Klein 2007), kill criteria (Annie Duke), Amazon working-backwards critique. Must always dissent. May consult `/consensus` for a full external panel.
 
 Output: one Skeptics committee report covering top attacks, kill criteria, and the strongest counterargument the rest of the team is ignoring.
+
+**Legal check** (standalone, no committee)
+- `legal`: IP, licensing, attribution. Reports a short list of license/IP red flags (or an all-clear) directly to the executive — blockers that would stop the project from being shipped or open-sourced. Not a committee; not market positioning.
+
+Output: a red-flag list (or all-clear) that the executive folds into the verdict's legal section.
 
 Each seat produces:
 
@@ -130,17 +125,16 @@ Each committee chair synthesizes into:
 
 ### Phase 4: Verdict
 
-The executive reads the four reports (Research, Business, Technical, Skeptics) and produces the final pitch using the rubric:
+The executive reads the reports (Research, Technical, Skeptics) plus the legal red-flag list, and produces the final assessment using the rubric:
 
 | Criterion | Weight |
 |-----------|--------|
-| Audience specificity | 20% |
-| Monetization plausibility | 15% |
-| Risk identification | 20% |
+| Risk identification | 25% |
+| Architecture fit | 20% |
 | Actionability | 15% |
-| Novelty vs. obvious-pitch baseline | 10% |
+| Verification rigor | 15% |
+| Legal red flags | 15% |
 | Internal consistency | 10% |
-| Legal coherence | 10% |
 
 Then `editor` humanizes the verdict (post-verdict only: never influences the decision).
 
@@ -151,16 +145,15 @@ Then `editor` humanizes the verdict (post-verdict only: never influences the dec
 ```markdown
 ## Decision: [one-line summary]
 
-### The pitch
-**Product:** [what it is]
-**Audience:** [specific buyer persona: role, budget, pain]
-**Positioning:** [the obviously-awesome paragraph]
-**Monetization:** [pricing model, comparable references]
+### The assessment
+**What it is:** [what the codebase actually does, in one paragraph]
+**Where it fits:** [architect's read on how it lives and what it costs to maintain]
+**What it's good for:** [the strongest defensible use, grounded in the code]
 **First three moves:** [concrete next steps]
 
 ### Key evidence
-- Recon: [internal facts that anchor the pitch]
-- Scout: [external prior art and market context]
+- Recon: [internal facts that anchor the assessment]
+- Scout: [external prior art and comparable projects]
 
 ### Risk assessment
 - [Top three risks with severity and concrete failure mode]
@@ -168,18 +161,18 @@ Then `editor` humanizes the verdict (post-verdict only: never influences the dec
 - [Breaker's strongest attack]
 
 ### Kill criteria
-- Ship-blocker: [specific condition that says "do not launch"]
-- Pivot-trigger: [signal that says "change positioning"]
+- Ship-blocker: [specific condition that says "do not ship"]
+- Pivot-trigger: [signal that says "change direction"]
 - Sunset-trigger: [signal that says "stop maintaining"]
 
 ### Verification plan
-[Tester's strategy for proving the pitch is real, not folklore: A/B baseline, regression gates, golden samples]
+[Tester's strategy for proving the assessment is real, not folklore: A/B baseline, regression gates, golden samples]
 
 ### Architecture fit
 [Architect's assessment of where this lives and what it costs to maintain]
 
-### Legal and IP
-[Legal seat's licensing posture and any blockers]
+### Legal red flags
+[Legal seat's license/IP blockers, or all-clear]
 
 ### Dissenting opinions
 - **Cynic**: [the strongest counterargument the rest of the team would prefer to ignore]
@@ -219,8 +212,8 @@ A seat declares its preferred consultants in its agent file. The skill calls the
 
 ## When to use `/team` vs other skills
 
-- **`/team`**: codebase has product potential, you want a pitch with adversarial review.
-- **`/extract`**: quick single-pass pitch when you don't need the council.
-- **`/elegance`**: code refinement or generic council debate (not pitch-flavored).
-- **`/doubt`**: challenge a single decision, not pitch a whole codebase.
-- **`/consensus`**: second opinions only, no synthesis or pitch shape.
+- **`/team`**: you want a defensible assessment of a codebase with adversarial review.
+- **`/extract`**: quick single-pass assessment when you don't need the council.
+- **`/elegance`**: code refinement or generic council debate.
+- **`/doubt`**: challenge a single decision, not assess a whole codebase.
+- **`/consensus`**: second opinions only, no synthesis.
