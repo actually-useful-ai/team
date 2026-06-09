@@ -49,14 +49,14 @@ eval "$(grep -E '^export ' ~/documentation/API_KEYS.md)" 2>/dev/null
 
 Pick a diverse 2–3 from the table below. Diversity matters more than model size for consensus: one OpenAI + one xAI + one Mistral catches more disagreement than three OpenAI variants.
 
-| Provider | Env var | Model recommendation (early 2026) | Endpoint |
+| Provider | Env var | Model recommendation (mid 2026) | Endpoint |
 |----------|---------|-----------------------------------|----------|
-| xAI | `XAI_API_KEY` | `grok-4-fast` (fast, terse, good critic) | `https://api.x.ai/v1/chat/completions` |
-| OpenAI | `OPENAI_API_KEY` | `gpt-5-mini` or `o3-mini` | `https://api.openai.com/v1/chat/completions` |
+| xAI | `XAI_API_KEY` | `grok-4.20-0309-reasoning` (fast critic); `grok-4.3` for flagship, 1M context. grok-4/grok-4-fast retired 2026-05-15 | `https://api.x.ai/v1/chat/completions` |
+| OpenAI | `OPENAI_API_KEY` | `gpt-5-mini` (fast), `gpt-5.4` (balanced), or `o4-mini` (reasoning) | `https://api.openai.com/v1/chat/completions` |
 | Mistral | `MISTRAL_API_KEY` | `mistral-large-latest` | `https://api.mistral.ai/v1/chat/completions` |
 | DeepSeek | `DEEPSEEK_API_KEY` | `deepseek-chat` | `https://api.deepseek.com/v1/chat/completions` |
-| Perplexity | `PERPLEXITY_API_KEY` | `llama-3.1-sonar-large-128k-online` (when web context helps) | `https://api.perplexity.ai/chat/completions` |
-| Anthropic | `ANTHROPIC_API_KEY` | `claude-sonnet-4-6` | `https://api.anthropic.com/v1/messages` |
+| Perplexity | `PERPLEXITY_API_KEY` | `sonar-pro` (when web context helps; `sonar-reasoning-pro` for analysis) | `https://api.perplexity.ai/chat/completions` |
+| Anthropic | `ANTHROPIC_API_KEY` | `claude-haiku-4-5` (fast), `claude-sonnet-4-6` (balanced), or `claude-opus-4-7` (most capable) | `https://api.anthropic.com/v1/messages` |
 
 **Skip Anthropic in self-consensus by default.** You're Claude: asking another Claude is the weakest signal. Reach for it only when the user explicitly wants a Claude family check, or when it's the only key available.
 
@@ -67,7 +67,7 @@ curl -s https://api.x.ai/v1/chat/completions \
   -H "Authorization: Bearer $XAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "grok-4-fast",
+    "model": "grok-4.20-0309-reasoning",
     "messages": [{"role": "user", "content": "<PROMPT>"}],
     "temperature": 0.2
   }' | python3 -c "import json,sys; print(json.load(sys.stdin)['choices'][0]['message']['content'])"
