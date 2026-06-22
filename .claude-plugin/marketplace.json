@@ -11,7 +11,7 @@
       "name": "team",
       "source": "./",
       "description": "Council-style technical assessment of a codebase. Three subcommittees (research, technical, skeptics) plus a standalone legal red-flag check feed an executive chair. Optional consultant fan-out to external models.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "category": "product",
       "homepage": "https://github.com/actually-useful-ai/team"
     }

@@ -26,15 +26,16 @@ Try in this order; skip silently on failure and fall through.
 
 | Agent | Command | Detect with |
 |-------|---------|-------------|
-| Codex | `codex exec --skip-git-repo-check -c 'sandbox_mode="read-only"' "$PROMPT"` | `which codex` |
-| Gemini | `gemini -m gemini-2.5-pro -p "$PROMPT"` | `which gemini` |
-| Cursor | `cursor-agent --print --output-format text "$PROMPT"` | `which cursor-agent` |
+| Codex | `codex exec --skip-git-repo-check -c 'sandbox_mode="read-only"' "$PROMPT"` | `which codex` (slow — allow 300s+) |
+| ~~Gemini~~ | **DEAD on beast (2026-06-22): `IneligibleTierError`, Google retired the free individual tier. Route Gemini via the gateway — `dreamer ask -p gemini` (transport 3).** | — |
+| Cursor | `cursor-agent --print --trust --output-format text "$PROMPT"` | `which cursor-agent` |
 
-CLI agents see the project's CLAUDE.md and can grep the codebase, so their answers carry context the API path can't replicate. Worth the first attempt even when auth is flaky.
+CLI agents see the project's CLAUDE.md and can grep the codebase, so their answers carry context the API path can't replicate. Worth the first attempt even when auth is flaky. **Cursor headless needs `--trust`** (or `-f`/`--yolo`) or it aborts with "Workspace Trust Required."
 
 **Common failure modes** (skip and fall through to API path):
 - `Authentication required` / `token expired` / `refresh token already used`: the OAuth-style CLIs lose state regularly. Don't try to re-auth from inside the skill; just fall through.
-- `Quota exceeded` / HTTP 429: Gemini's free tier is 0/day in many configurations. Fall through.
+- `IneligibleTierError` / "no longer supported for Gemini Code Assist for individuals": the **gemini CLI is permanently dead on beast** (Antigravity migration, 2026-06-22) — not transient. Don't detect it at all; use `dreamer ask -p gemini` instead.
+- `Quota exceeded` / HTTP 429: free tiers can be 0/day. Fall through.
 - Process exits with a non-zero code and no useful stdout.
 
 ### 2. Direct API calls (the reliable fallback)
@@ -89,26 +90,21 @@ curl -s https://api.anthropic.com/v1/messages \
 
 Run all chosen providers in parallel via background `Bash` calls. Wait for completion notifications, then aggregate.
 
-### 3. Local API gateway (low-priority backstop)
+### 3. dr.eamer.dev gateway via the `dreamer` CLI (reliable, server-keyed)
 
-If `~/servers/api-gateway/` is reachable on `localhost:5200`, it offers a unified `/v1/llm` endpoint that proxies to multiple providers behind one rate limit. Useful when:
-
-- The user wants the call accounted against the gateway's quota instead of personal API spend
-- Multiple downstream agents need a single rate-limited shared budget
-
-Detection:
+The gateway proxies 12 providers behind one stored key, and the `dreamer` CLI is the ergonomic front door — no per-CLI auth, works from beast against the public base. Since the Gemini CLI died (transport 1), **this is the only working route for a Gemini voice**, and it's simpler than the raw `curl` of transport 2 for every other provider too. It is no longer a mere backstop.
 
 ```bash
-curl -sf http://localhost:5200/health | grep -q healthy && echo "gateway up"
+dreamer ask "<PROMPT>" -p gemini      # or: xai | openai | perplexity | groq | mistral | anthropic
 ```
 
-Endpoint discovery is at `http://localhost:5200/` (returns a JSON manifest of routes). Use only when transport 1 and 2 are both unavailable, or when the user explicitly asks for `--via-gateway`.
+One-shot, fast (~5–60s), returns plain text. Validated 2026-06-22: `-p gemini` answered cleanly in ~5s while the gemini CLI was hard-down with `IneligibleTierError`. It spends real money on the server's keys, so prefer `-p groq`/`-p xai` for throwaway checks; reserve `-p gemini`/`-p openai` for answers that earn it. Detect with `which dreamer` (or `dreamer health`). For raw routes / gateway-quota accounting, `dreamer ask` hits `localhost:5200` on dreamer and `https://api.dr.eamer.dev` on beast automatically.
 
 ## Procedure
 
 1. **Frame the question once.** Write a single compact prompt that asks for verdicts in a tight format ("number, AGREE/DISAGREE/WAIT, one-line reason"). Save to `/tmp/consensus-<topic>.txt` so each transport gets identical input.
 
-2. **Detect transports.** Run `which codex gemini cursor-agent` plus `[ -f ~/documentation/API_KEYS.md ]`. Note what's available.
+2. **Detect transports.** Run `which codex cursor-agent dreamer` plus `[ -f ~/documentation/API_KEYS.md ]`. Note what's available. Don't probe `gemini` — the CLI is dead; reach Gemini via `dreamer ask -p gemini`.
 
 3. **Fan out in parallel.** Pick 2–4 voices favouring CLI agents first. Launch each as a background `Bash` task so the skill returns control while they work.
 
@@ -141,7 +137,7 @@ Endpoint discovery is at `http://localhost:5200/` (returns a JSON manifest of ro
 - **Don't retry on auth failure.** The CLIs keep state across sessions; if they're stale, they'll keep being stale until the user re-auths.
 - **Don't fan out to 5+ voices.** The aggregation cost outgrows the signal. Pick 2–4 with diverse provenance.
 - **Don't ask the same model twice in different costumes** (e.g. GPT-5 via OpenAI and GPT-5 via OpenRouter). Diversity is the point.
-- **Don't reach for the local gateway by default.** It rate-limits across the whole server's traffic; reserve for genuine need.
+- **The `dreamer` gateway is now a first-class route, not a backstop** — it's the only path to a Gemini voice and the simplest path to the rest. The one caution: it spends real money on the server's keys, so use cheap providers (`-p groq`/`-p xai`) for throwaway sanity checks.
 
 ## Notes
 
