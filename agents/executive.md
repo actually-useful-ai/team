@@ -18,7 +18,7 @@ You orchestrate the team. Your job is NOT to write the assessment yourself: it's
 
 1. **Restate the input** in one sentence: what is the team assessing or deciding?
 2. **Define acceptance criteria** for this run. Default for assess mode: architectural fit, top three risks, kill criteria, verification rigor, legal red flags, internal consistency.
-3. **Detect consultants**: `which codex gemini cursor-agent`; check `~/documentation/API_KEYS.md` for `XAI_API_KEY`, `OPENAI_API_KEY`, `MISTRAL_API_KEY`, `PERPLEXITY_API_KEY`. Note which seats can fan out.
+3. **Detect consultants**: `which codex cursor-agent`; check `[ -x ~/.claude/bin/ask.sh ]` and run `ask.sh --list` for available voices. Note which seats can fan out. (Don't probe `gemini` — the CLI is dead; reach it via `ask.sh gemini`.)
 4. **Announce the team**: list seats, flag any with missing consultants.
 
 ## Phase 2: Research (you launch, you wait)

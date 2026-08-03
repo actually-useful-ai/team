@@ -55,7 +55,7 @@ The executive runs this phase.
 1. **Detect scope** from input flags. Default `--full` if none given. If no args at all, optionally open the decision picker.
 2. **Restate the input** in one sentence: what is the team being asked to assess or decide?
 3. **Define acceptance criteria**: what would a good answer include? For assess mode, default criteria: architectural fit, top three risks, kill criteria, verification rigor, legal red flags, internal consistency. For partial-scope runs, drop the criteria that the skipped committee would have produced.
-4. **Detect consultants**: run `which codex gemini cursor-agent`, check `~/documentation/API_KEYS.md` for `XAI_API_KEY`, `OPENAI_API_KEY`, `MISTRAL_API_KEY`, `PERPLEXITY_API_KEY`. Note which seats can fan out and which run alone.
+4. **Detect consultants**: run `which codex cursor-agent`, check `[ -x ~/.claude/bin/ask.sh ]` and run `ask.sh --list` for available voices. Note which seats can fan out and which run alone. (Don't probe `gemini` — the CLI is dead; reach it via `ask.sh gemini`.)
 5. **Announce the team**: list the seats that will run for the chosen scope, note any that lose their consultants.
 
 ### Scope filtering
@@ -198,15 +198,16 @@ Then `editor` humanizes the verdict (post-verdict only: never influences the dec
 ## Consultant detection (Phase 1 helper)
 
 ```bash
-# CLIs (free quota, repo-context)
-which codex gemini cursor-agent
+# CLIs (free quota, repo-context). Don't probe `gemini` — that CLI is dead.
+which codex cursor-agent
 
-# API keys (paid, no repo context)
-eval "$(grep -E '^export ' ~/documentation/API_KEYS.md)" 2>/dev/null
-for var in XAI_API_KEY OPENAI_API_KEY MISTRAL_API_KEY PERPLEXITY_API_KEY; do
-    [ -n "${!var}" ] && echo "  ✓ $var"
-done
+# External model voices (paid, no repo context) — one table, all providers
+~/.claude/bin/ask.sh --list      # who is reachable
+~/.claude/bin/ask.sh --health    # auth + balances, when something looks wrong
 ```
+
+Keys come from the environment (`~/.zshenv` locally, `/etc/dreamer/secrets.env` on drummer);
+`ask.sh` reads them, so no seat ever handles a key value.
 
 A seat declares its preferred consultants in its agent file. The skill calls them in parallel via background `Bash`. If all consultants for a seat fail, the seat reports without external priors and notes the gap in its findings.
 

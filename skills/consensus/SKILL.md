@@ -1,6 +1,6 @@
 ---
 name: consensus
-description: "Read-only second opinions from external models. Tries installed CLI agents first; falls back to direct API calls (xAI Grok, OpenAI GPT-5, Mistral) when CLI auth fails. Use when the user explicitly asks for `/consensus` or when the request clearly matches this command."
+description: "Read-only second opinions from external models. Tries installed CLI agents first; falls back to `~/.claude/bin/ask.sh` (DeepSeek, Kimi, Grok, GPT, Gemini, Mistral, Perplexity) when CLI auth fails. Use when the user explicitly asks for `/consensus` or when the request clearly matches this command."
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
@@ -27,84 +27,78 @@ Try in this order; skip silently on failure and fall through.
 | Agent | Command | Detect with |
 |-------|---------|-------------|
 | Codex | `codex exec --skip-git-repo-check -c 'sandbox_mode="read-only"' "$PROMPT"` | `which codex` (slow — allow 300s+) |
-| ~~Gemini~~ | **DEAD on beast (2026-06-22): `IneligibleTierError`, Google retired the free individual tier. Route Gemini via the gateway — `dreamer ask -p gemini` (transport 3).** | — |
+| ~~Gemini~~ | **DEAD on beast (2026-06-22): `IneligibleTierError`, Google retired the free individual tier. Route Gemini via `ask.sh gemini` (transport 2) — the gateway's gemini is also broken, see below.** | — |
 | Cursor | `cursor-agent --print --trust --output-format text "$PROMPT"` | `which cursor-agent` |
 
 CLI agents see the project's CLAUDE.md and can grep the codebase, so their answers carry context the API path can't replicate. Worth the first attempt even when auth is flaky. **Cursor headless needs `--trust`** (or `-f`/`--yolo`) or it aborts with "Workspace Trust Required."
 
 **Common failure modes** (skip and fall through to API path):
 - `Authentication required` / `token expired` / `refresh token already used`: the OAuth-style CLIs lose state regularly. Don't try to re-auth from inside the skill; just fall through.
-- `IneligibleTierError` / "no longer supported for Gemini Code Assist for individuals": the **gemini CLI is permanently dead on beast** (Antigravity migration, 2026-06-22) — not transient. Don't detect it at all; use `dreamer ask -p gemini` instead.
+- `IneligibleTierError` / "no longer supported for Gemini Code Assist for individuals": the **gemini CLI is permanently dead on beast** (Antigravity migration, 2026-06-22) — not transient. Don't detect it at all; use `ask.sh gemini` instead.
 - `Quota exceeded` / HTTP 429: free tiers can be 0/day. Fall through.
 - Process exits with a non-zero code and no useful stdout.
 
-### 2. Direct API calls (the reliable fallback)
+### 2. `ask.sh` — the shared provider table (the reliable fallback)
 
-Source `~/documentation/API_KEYS.md` to populate the env vars, then `curl` directly. The file is markdown with prose plus `export X="..."` lines, so `source` chokes on the prose; extract just the exports:
-
-```bash
-eval "$(grep -E '^export ' ~/documentation/API_KEYS.md)" 2>/dev/null
-```
-
-(The `2>/dev/null` swallows harmless warnings from any multi-line PEM-key blocks; valid `export FOO="bar"` lines populate cleanly.)
-
-Pick a diverse 2–3 from the table below. Diversity matters more than model size for consensus: one OpenAI + one xAI + one Mistral catches more disagreement than three OpenAI variants.
-
-| Provider | Env var | Model recommendation (mid 2026) | Endpoint |
-|----------|---------|-----------------------------------|----------|
-| xAI | `XAI_API_KEY` | `grok-4.20-0309-reasoning` (fast critic); `grok-4.3` for flagship, 1M context. grok-4/grok-4-fast retired 2026-05-15 | `https://api.x.ai/v1/chat/completions` |
-| OpenAI | `OPENAI_API_KEY` | `gpt-5-mini` (fast), `gpt-5.4` (balanced), or `o4-mini` (reasoning) | `https://api.openai.com/v1/chat/completions` |
-| Mistral | `MISTRAL_API_KEY` | `mistral-large-latest` | `https://api.mistral.ai/v1/chat/completions` |
-| DeepSeek | `DEEPSEEK_API_KEY` | `deepseek-chat` | `https://api.deepseek.com/v1/chat/completions` |
-| Perplexity | `PERPLEXITY_API_KEY` | `sonar-pro` (when web context helps; `sonar-reasoning-pro` for analysis) | `https://api.perplexity.ai/chat/completions` |
-| Anthropic | `ANTHROPIC_API_KEY` | `claude-haiku-4-5` (fast), `claude-sonnet-4-6` (balanced), or `claude-opus-4-7` (most capable) | `https://api.anthropic.com/v1/messages` |
-
-**Skip Anthropic in self-consensus by default.** You're Claude: asking another Claude is the weakest signal. Reach for it only when the user explicitly wants a Claude family check, or when it's the only key available.
-
-**Standard request shape** (OpenAI-compatible providers; xAI / Mistral / DeepSeek / Perplexity all accept this):
+`~/.claude/bin/ask.sh` owns the routing. It maps a provider name to a transport (gateway,
+OpenRouter, or direct) plus a current model id, and prints plain text on stdout. Use it instead of
+hand-rolled `curl`: it is the same table behind `/deepseek`, `/kimi`, `/grok` and friends, so a
+rotted model id gets fixed in one place for every caller.
 
 ```bash
-curl -s https://api.x.ai/v1/chat/completions \
-  -H "Authorization: Bearer $XAI_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "grok-4.20-0309-reasoning",
-    "messages": [{"role": "user", "content": "<PROMPT>"}],
-    "temperature": 0.2
-  }' | python3 -c "import json,sys; print(json.load(sys.stdin)['choices'][0]['message']['content'])"
+~/.claude/bin/ask.sh deepseek "<PROMPT>"
+~/.claude/bin/ask.sh --list      # the provider table
+~/.claude/bin/ask.sh --health    # auth + balances for every route
 ```
 
-Anthropic uses a different shape:
+Pick a diverse 2–3. Diversity matters more than model size for consensus: one OpenAI + one xAI +
+one DeepSeek catches more disagreement than three OpenAI variants.
 
-```bash
-curl -s https://api.anthropic.com/v1/messages \
-  -H "x-api-key: $ANTHROPIC_API_KEY" \
-  -H "anthropic-version: 2023-06-01" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "claude-sonnet-4-6",
-    "max_tokens": 1024,
-    "messages": [{"role": "user", "content": "<PROMPT>"}]
-  }' | python3 -c "import json,sys; print(json.load(sys.stdin)['content'][0]['text'])"
-```
+| Provider arg | Routes via | Model (verified 2026-08-03) |
+|---|---|---|
+| `deepseek` | OpenRouter | `deepseek/deepseek-v4-pro` |
+| `deepseek-flash` | OpenRouter | `deepseek/deepseek-v4-flash` — pennies, good for bulk verdicts |
+| `kimi` | OpenRouter | `moonshotai/kimi-k3` |
+| `grok` | gateway | `grok-4.3` |
+| `gpt` | gateway | `gpt-5.4` |
+| `mistral` | gateway | `mistral-large-latest` |
+| `cohere` | gateway | gateway picks |
+| `gemini` | direct | `gemini-3-flash-preview` |
+| `perplexity` | direct | `sonar-pro` — web-grounded; **flat $0.005/request** on top of tokens |
+| `claude` | gateway | `claude-sonnet-4-6` |
 
-Run all chosen providers in parallel via background `Bash` calls. Wait for completion notifications, then aggregate.
+**Skip `claude` in self-consensus by default.** You're Claude: asking another Claude is the weakest
+signal. Reach for it only when the user explicitly wants a Claude-family check.
+
+Run the chosen providers in parallel via background `Bash` calls, then aggregate.
 
 ### 3. dr.eamer.dev gateway via the `dreamer` CLI (reliable, server-keyed)
 
-The gateway proxies 12 providers behind one stored key, and the `dreamer` CLI is the ergonomic front door — no per-CLI auth, works from beast against the public base. Since the Gemini CLI died (transport 1), **this is the only working route for a Gemini voice**, and it's simpler than the raw `curl` of transport 2 for every other provider too. It is no longer a mere backstop.
+The gateway holds server-side keys for seven providers, and `ask.sh` already routes `grok`, `gpt`,
+`mistral`, `cohere` and `claude` through it — so transport 2 covers the gateway for you. Reach for
+the `dreamer` CLI directly only when you want a raw route or gateway-quota accounting.
 
 ```bash
-dreamer ask "<PROMPT>" -p gemini      # or: xai | openai | perplexity | groq | mistral | anthropic
+dreamer ask "<PROMPT>" -p xai      # or: openai | mistral | anthropic | cohere
 ```
 
-One-shot, fast (~5–60s), returns plain text. Validated 2026-06-22: `-p gemini` answered cleanly in ~5s while the gemini CLI was hard-down with `IneligibleTierError`. It spends real money on the server's keys, so prefer `-p groq`/`-p xai` for throwaway checks; reserve `-p gemini`/`-p openai` for answers that earn it. Detect with `which dreamer` (or `dreamer health`). For raw routes / gateway-quota accounting, `dreamer ask` hits `localhost:5200` on dreamer and `https://api.dr.eamer.dev` on beast automatically.
+**Verified against the live gateway 2026-08-03 — do not trust the older provider list:**
+
+- **Working:** `xai`, `openai`, `mistral`, `anthropic`, `cohere`.
+- **`groq` is gone.** No server key (`GROQ_API_KEY is required`); the local var was removed too.
+  Any older advice to use `-p groq` for cheap throwaway checks is dead — use `ask.sh deepseek-flash`.
+- **`gemini` is broken** at the gateway (returns no valid `Part`). Use `ask.sh gemini`, which goes direct.
+- **`perplexity` and `ollama` 500** at the gateway. Use `ask.sh perplexity`, which goes direct.
+
+Rate limit 10,000 requests/day. It spends real money on the server's keys, and exposes **no balance
+endpoint** — `ask.sh --health` can prove liveness but never remaining credit. Detect with
+`which dreamer` (or `dreamer health`).
 
 ## Procedure
 
 1. **Frame the question once.** Write a single compact prompt that asks for verdicts in a tight format ("number, AGREE/DISAGREE/WAIT, one-line reason"). Save to `/tmp/consensus-<topic>.txt` so each transport gets identical input.
 
-2. **Detect transports.** Run `which codex cursor-agent dreamer` plus `[ -f ~/documentation/API_KEYS.md ]`. Note what's available. Don't probe `gemini` — the CLI is dead; reach Gemini via `dreamer ask -p gemini`.
+2. **Detect transports.** Run `which codex cursor-agent dreamer` plus `[ -x ~/.claude/bin/ask.sh ]`. Note what's available. Don't probe `gemini` — the CLI is dead; reach Gemini via `ask.sh gemini`.
 
 3. **Fan out in parallel.** Pick 2–4 voices favouring CLI agents first. Launch each as a background `Bash` task so the skill returns control while they work.
 
@@ -133,14 +127,15 @@ One-shot, fast (~5–60s), returns plain text. Validated 2026-06-22: `-p gemini`
 
 ## Anti-patterns
 
-- **Don't paste API keys into log messages or commits.** The keys file is private; treat it as such.
+- **Don't paste API keys into log messages or commits.** Never read a key value at all — `ask.sh` reads them from the environment so you never have to handle one.
 - **Don't retry on auth failure.** The CLIs keep state across sessions; if they're stale, they'll keep being stale until the user re-auths.
 - **Don't fan out to 5+ voices.** The aggregation cost outgrows the signal. Pick 2–4 with diverse provenance.
 - **Don't ask the same model twice in different costumes** (e.g. GPT-5 via OpenAI and GPT-5 via OpenRouter). Diversity is the point.
-- **The `dreamer` gateway is now a first-class route, not a backstop** — it's the only path to a Gemini voice and the simplest path to the rest. The one caution: it spends real money on the server's keys, so use cheap providers (`-p groq`/`-p xai`) for throwaway sanity checks.
+- **Don't hand-roll `curl` against a provider.** `ask.sh` is the one routing table; a second copy of a model id somewhere else is how the table rots. Add a row there instead.
+- **Don't burn a flagship on a throwaway check.** `ask.sh deepseek-flash` costs ~$0.09 per million input tokens. Reserve `gpt`/`gemini`/`claude` for verdicts that earn it, and remember `perplexity` bills a flat $0.005 per request regardless of size.
 
 ## Notes
 
 - This skill is read-only. Never let an external model's reply trigger an edit. Synthesize, present, and let the user decide.
-- The user's `~/documentation/API_KEYS.md` is the single source of API credentials. Source it; never hand-copy values.
-- Knowledge cutoff drift: model names age fast. If a model name returns a 404 or "model not found", check the provider's models endpoint (`/v1/models`) before assuming the key is bad.
+- **Credentials live in the environment**, exported from `~/.zshenv` locally and `/etc/dreamer/secrets.env` on the server. `ask.sh` reads them; you never touch a key value. (An older version of this skill named `~/documentation/API_KEYS.md` as the source — **that file does not exist**, on any host.)
+- Knowledge cutoff drift: model names age fast. If a model name returns a 404 or "model not found", run `ask.sh --health` — it exercises every route and surfaces retired ids — then fix the table in `~/.claude/bin/ask.sh`.
