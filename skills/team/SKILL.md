@@ -1,6 +1,6 @@
 ---
 name: team
-description: "Codebase-assessment council. A 10-seat team across three subcommittees plus a standalone legal red-flag check turns code into a defensible technical assessment with adversarial review, kill criteria, and a verification plan."
+description: "Run a read-only codebase-assessment council that produces a defensible technical verdict, risks, kill criteria, legal red flags, and a verification plan. Use for consequential architecture questions or full adversarial codebase assessment."
 allowed-tools: Read, Grep, Glob, Bash, Agent, WebSearch, WebFetch
 ---
 
@@ -55,7 +55,11 @@ The executive runs this phase.
 1. **Detect scope** from input flags. Default `--full` if none given. If no args at all, optionally open the decision picker.
 2. **Restate the input** in one sentence: what is the team being asked to assess or decide?
 3. **Define acceptance criteria**: what would a good answer include? For assess mode, default criteria: architectural fit, top three risks, kill criteria, verification rigor, legal red flags, internal consistency. For partial-scope runs, drop the criteria that the skipped committee would have produced.
-4. **Detect consultants**: run `which codex cursor-agent`, check `[ -x ~/.claude/bin/ask.sh ]` and run `ask.sh --list` for available voices. Note which seats can fan out and which run alone. (Don't probe `gemini` — the CLI is dead; reach it via `ask.sh gemini`.)
+4. **Detect consultants**: inspect available native read-only agents. If
+   `craft-ask` is present, `craft-ask --list` and `craft-ask --status` may
+   describe outside routes without making inference calls. Run a paid outside
+   consultant only when the request explicitly authorizes external voices or
+   fan-out; `/team` alone does not.
 5. **Announce the team**: list the seats that will run for the chosen scope, note any that lose their consultants.
 
 ### Scope filtering
@@ -77,7 +81,8 @@ Phase 4 synthesis adapts: a single-committee scope produces a focused report rat
 Launch in parallel:
 
 - `recon`: internal codebase map (languages, deps, public surfaces, patterns, deployment context).
-- `scout`: external prior art scan. May consult Perplexity (web), Gemini (broad knowledge).
+- `scout`: external prior art scan from current, verifiable sources. May use one
+  authorized Craft Ask route for search leads when installed.
 
 Wait for both to complete before Phase 3.
 
@@ -193,21 +198,24 @@ Then `editor` humanizes the verdict (post-verdict only: never influences the dec
 5. **No agent speaks twice until all seated agents have spoken once.**
 6. **Scout must explain why a pattern transfers**: not just that it's popular.
 7. **Dissenting opinions are always preserved.** Never flattened into false consensus.
-8. **Consultants are best-effort.** Try CLI first (free quota), fall through to API, fall through to "consultant unavailable." A seat without its consultant still reports: it just notes the gap.
+8. **Consultants are best-effort and authorization-bound.** Native read-only
+   agents remain the fallback. A seat without an authorized outside consultant
+   still reports and notes the gap.
 
 ## Consultant detection (Phase 1 helper)
 
 ```bash
-# CLIs (free quota, repo-context). Don't probe `gemini` — that CLI is dead.
+# Native agents (repository-aware)
 which codex cursor-agent
 
-# External model voices (paid, no repo context) — one table, all providers
-~/.claude/bin/ask.sh --list      # who is reachable
-~/.claude/bin/ask.sh --health    # auth + balances, when something looks wrong
+# Craft Ask, when installed (outside routes; these checks make no model calls)
+command -v craft-ask
+craft-ask --list
+craft-ask --status
 ```
 
-Keys come from the environment (`~/.zshenv` locally, `/etc/dreamer/secrets.env` on drummer);
-`ask.sh` reads them, so no seat ever handles a key value.
+Craft Ask handles its own credentials, so no seat reads a key value. If it is
+missing, the council keeps its native-agent fallback and notes the limitation.
 
 A seat declares its preferred consultants in its agent file. The skill calls them in parallel via background `Bash`. If all consultants for a seat fail, the seat reports without external priors and notes the gap in its findings.
 

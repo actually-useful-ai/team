@@ -1,6 +1,6 @@
 ---
 name: research
-description: "Just the research phase of /team: recon (internal codebase map) + scout (external prior art, ecosystem context). No verdicts, no opinions."
+description: "Run only Team's research phase: recon the codebase and gather external prior art without verdicts. Use when Luke wants a factual map, ecosystem context, or research inputs before deciding."
 allowed-tools: Read, Grep, Glob, Bash, Agent, WebSearch, WebFetch
 ---
 

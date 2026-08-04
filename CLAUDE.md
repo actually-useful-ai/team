@@ -54,6 +54,7 @@ scripts/banner.sh        ASCII banners
 4. Editor is post-verdict only.
 5. Dissenting opinions are always preserved.
 6. Consultants are best-effort. Skill works fine when external models are unreachable.
+7. Paid outside-model consultants require explicit external-consult or fan-out authorization. Craft Ask may provide them when installed, but Team retains a native fallback.
 
 ## Development
 

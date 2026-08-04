@@ -33,7 +33,8 @@ A short verdict from the executive chair, structured as:
 
 **Research (facts, not opinions)**
 - `recon`: maps the codebase. Languages, dependencies, public surfaces, internal patterns.
-- `scout`: external prior art. Comparable projects, technical approaches. Optional consult: Perplexity, Gemini.
+- `scout`: external prior art. Comparable projects, technical approaches, and
+  verifiable current sources; optional Craft Ask leads when explicitly authorized.
 
 **Technical**
 - `architect`: fit with the existing codebase patterns. Chairs the committee.
@@ -54,7 +55,11 @@ A short verdict from the executive chair, structured as:
 
 ## Consultants
 
-Several seats can call external models for diverse priors. All consultant calls are best-effort: try CLI first (free quota: Codex, Gemini, Cursor agent), fall through to direct API (xAI, OpenAI, Mistral, Perplexity), fall through to "consultant unavailable." The skill works fine without any external auth, consultants only sharpen the verdict when they're reachable.
+Several seats can use native read-only agents for diverse priors. When Luke
+explicitly authorizes outside-model consultation or fan-out, Team can also use
+Craft's optional `craft-ask` entry point. Craft owns provider/model routing and
+provenance; Team retains its native fallback and works without Craft or external
+credentials.
 
 The full fan-out lives at `skills/consensus/` and is invoked by the cynic seat as the panel of last resort.
 
