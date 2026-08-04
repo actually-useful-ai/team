@@ -43,6 +43,9 @@ class TeamPackageTests(unittest.TestCase):
         marketplace = json.loads(
             (ROOT / ".claude-plugin/marketplace.json").read_text()
         )["plugins"][0]
+        cursor_marketplace = json.loads(
+            (ROOT / ".cursor-plugin/marketplace.json").read_text()
+        )
 
         shared_fields = (
             "name",
@@ -65,6 +68,10 @@ class TeamPackageTests(unittest.TestCase):
         self.assertEqual(manifests[2]["agents"], "./agents/")
         self.assertEqual(marketplace["name"], manifests[0]["name"])
         self.assertEqual(marketplace["version"], manifests[0]["version"])
+        self.assertEqual(cursor_marketplace["name"], "lukeslp-team")
+        self.assertEqual(cursor_marketplace["metadata"]["version"], "0.1.4")
+        self.assertEqual(cursor_marketplace["plugins"][0]["name"], "team")
+        self.assertEqual(cursor_marketplace["plugins"][0]["source"], ".")
 
     def test_skill_and_agent_inventory_is_authoritative(self) -> None:
         skill_paths = sorted((ROOT / "skills").glob("*/SKILL.md"))

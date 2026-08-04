@@ -1,0 +1,19 @@
+{
+  "name": "lukeslp-team",
+  "displayName": "Team",
+  "owner": {
+    "name": "Luke Steuber"
+  },
+  "metadata": {
+    "description": "Structured specialist consultation and consensus workflows.",
+    "version": "0.1.4"
+  },
+  "plugins": [
+    {
+      "name": "team",
+      "source": ".",
+      "description": "Bring focused specialist perspectives into complex decisions.",
+      "version": "0.1.4"
+    }
+  ]
+}
