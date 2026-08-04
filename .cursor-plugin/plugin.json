@@ -3,8 +3,7 @@
   "version": "0.1.4",
   "description": "Council-style codebase-assessment plugin. An 11-seat team across three subcommittees (research, technical, skeptics) plus a standalone legal red-flag check takes your code and produces an assessment with risks, kill criteria, and a verification plan.",
   "author": {
-    "name": "Luke Steuber",
-    "url": "https://github.com/lukeslp"
+    "name": "Luke Steuber"
   },
   "homepage": "https://github.com/actually-useful-ai/team",
   "repository": "https://github.com/actually-useful-ai/team",
@@ -18,5 +17,6 @@
     "review",
     "kill-criteria"
   ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "agents": "./agents/"
 }

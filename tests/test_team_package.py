@@ -9,16 +9,81 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+PACKAGE_MANIFESTS = (
+    ROOT / ".claude-plugin/plugin.json",
+    ROOT / ".codex-plugin/plugin.json",
+    ROOT / ".cursor-plugin/plugin.json",
+)
+EXPECTED_SKILLS = {
+    "consensus",
+    "doubt",
+    "research",
+    "skeptics",
+    "team",
+    "technical",
+}
+EXPECTED_AGENTS = {
+    "architect",
+    "breaker",
+    "cynic",
+    "editor",
+    "executive",
+    "greybeard",
+    "legal",
+    "recon",
+    "safety",
+    "scout",
+    "tester",
+}
 
 
 class TeamPackageTests(unittest.TestCase):
-    def test_manifest_versions_match(self) -> None:
-        plugin = json.loads((ROOT / ".claude-plugin/plugin.json").read_text())
+    def test_runtime_manifests_match(self) -> None:
+        manifests = [json.loads(path.read_text()) for path in PACKAGE_MANIFESTS]
         marketplace = json.loads(
             (ROOT / ".claude-plugin/marketplace.json").read_text()
         )["plugins"][0]
-        self.assertEqual(plugin["version"], "0.1.3")
-        self.assertEqual(marketplace["version"], "0.1.3")
+
+        shared_fields = (
+            "name",
+            "version",
+            "description",
+            "homepage",
+            "repository",
+            "license",
+            "keywords",
+            "skills",
+        )
+        for manifest in manifests:
+            self.assertEqual(manifest["name"], "team")
+            self.assertEqual(manifest["version"], "0.1.4")
+            self.assertEqual(manifest["skills"], "./skills/")
+            self.assertEqual(manifest["author"]["name"], "Luke Steuber")
+            for field in shared_fields:
+                self.assertEqual(manifest[field], manifests[0][field])
+        self.assertEqual(manifests[1]["interface"]["displayName"], "Team")
+        self.assertEqual(manifests[2]["agents"], "./agents/")
+        self.assertEqual(marketplace["name"], manifests[0]["name"])
+        self.assertEqual(marketplace["version"], manifests[0]["version"])
+
+    def test_skill_and_agent_inventory_is_authoritative(self) -> None:
+        skill_paths = sorted((ROOT / "skills").glob("*/SKILL.md"))
+        agent_paths = sorted((ROOT / "agents").glob("*.md"))
+        skill_names = {path.parent.name for path in skill_paths}
+        agent_names = {path.stem for path in agent_paths}
+
+        self.assertEqual(skill_names, EXPECTED_SKILLS)
+        self.assertEqual(agent_names, EXPECTED_AGENTS)
+        for path in skill_paths:
+            self.assertIn(f"name: {path.parent.name}", path.read_text())
+        for path in agent_paths:
+            self.assertIn(f"name: {path.stem}", path.read_text())
+
+        for documentation in (ROOT / "README.md", ROOT / "CLAUDE.md"):
+            content = documentation.read_text()
+            self.assertIn(f"{len(skill_names)} skill", content)
+            self.assertIn(f"{len(agent_names)} agent", content)
+            self.assertIn(f"{len(agent_names)}-seat", content)
 
     def test_consensus_discovers_craft_without_private_dependency(self) -> None:
         consensus = (ROOT / "skills/consensus/SKILL.md").read_text()

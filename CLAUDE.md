@@ -1,6 +1,6 @@
-# team v0.1
+# team v0.1.4
 
-Council-style codebase-assessment plugin for Claude Code. Takes a codebase, returns a technical assessment reviewed by a 10-seat team.
+Council-style codebase-assessment plugin for Claude Code, Codex, and Cursor. Its 6 skills route a codebase or question through 11 agent definitions and return a reviewed technical assessment.
 
 ## Architecture
 
@@ -21,13 +21,15 @@ Council-style codebase-assessment plugin for Claude Code. Takes a codebase, retu
 | **Chair** | executive |
 | **Polish** | editor |
 
-10 seats total. The committees run in parallel, with the legal check alongside them. Each committee chair synthesizes its seats. The executive sees the committee reports plus the legal list, not ten voices.
+The 11-seat council runs its committees in parallel, with the legal check alongside them. Each committee chair synthesizes its seats. The executive sees the committee reports plus the legal list, not eleven separate voices.
 
 ## Plugin Structure
 
 ```
-.claude-plugin/          Plugin metadata (marketplace.json, plugin.json)
-agents/                  10 agent definitions
+.claude-plugin/          Claude plugin and marketplace metadata
+.codex-plugin/           Codex plugin metadata
+.cursor-plugin/          Cursor plugin metadata
+agents/                  11 agent definitions
   executive.md           Chair, synthesis
   editor.md              Post-verdict humanize
   recon.md               Internal codebase map
@@ -39,10 +41,13 @@ agents/                  10 agent definitions
   tester.md              Verification, regression
   breaker.md             Adversarial attack on the assessment
   cynic.md               Pre-mortem, kill criteria, devil's advocate
-skills/team/SKILL.md     Council protocol
-skills/consensus/        Read-only second opinions from external models
-skills/doubt/            Targeted challenge to a current approach
-commands/team.md         /team entry point
+skills/                  6 skill entry points
+  team/                  Full council protocol and scope routing
+  technical/             Technical committee only
+  skeptics/              Skeptics committee only
+  research/              Research phase only
+  consensus/             Read-only second opinions from external models
+  doubt/                 Targeted challenge to a current approach
 scripts/banner.sh        ASCII banners
 ```
 

@@ -1,0 +1,41 @@
+{
+  "name": "team",
+  "version": "0.1.4",
+  "description": "Council-style codebase-assessment plugin. An 11-seat team across three subcommittees (research, technical, skeptics) plus a standalone legal red-flag check takes your code and produces an assessment with risks, kill criteria, and a verification plan.",
+  "author": {
+    "name": "Luke Steuber",
+    "url": "https://github.com/lukeslp"
+  },
+  "homepage": "https://github.com/actually-useful-ai/team",
+  "repository": "https://github.com/actually-useful-ai/team",
+  "license": "MIT",
+  "keywords": [
+    "code-review",
+    "architecture",
+    "risk-assessment",
+    "multi-agent",
+    "council",
+    "review",
+    "kill-criteria"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Team",
+    "shortDescription": "Council review for consequential code decisions",
+    "longDescription": "A read-only assessment council that maps a codebase, tests architectural fit, attacks assumptions, identifies legal red flags, preserves dissent, and returns a defensible technical verdict.",
+    "developerName": "Luke Steuber",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://github.com/actually-useful-ai/team",
+    "defaultPrompt": [
+      "Assess this codebase with the full council",
+      "Stress-test this technical proposal",
+      "Map the risks, kill criteria, and verification plan"
+    ],
+    "brandColor": "#334E68",
+    "screenshots": []
+  }
+}

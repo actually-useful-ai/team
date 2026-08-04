@@ -1,12 +1,37 @@
 # team
 
-Council-style codebase-assessment plugin for Claude Code.
+Council-style codebase-assessment plugin for Claude Code, Codex, and Cursor.
 
-Point it at a codebase. A 10-seat team across three subcommittees (research, technical, skeptics) plus a standalone legal red-flag check decides what it is, where it fits, what breaks it, what kills it, and how to know whether the assessment is any good.
+Point it at a codebase. An 11-seat team across three subcommittees (research, technical, skeptics) plus a standalone legal red-flag check decides what it is, where it fits, what breaks it, what kills it, and how to know whether the assessment is any good.
+
+The package contains 6 skills and 11 agent definitions. The manifests for all three supported runtimes point at the same `skills/` directory, so the skill inventory has one source of truth.
 
 ## Install
 
-This plugin lives in `~/.claude/plugins/marketplaces/lukeslp-team/`. Add the marketplace and install via the Claude Code plugin tooling, or symlink directly into your local plugin tree.
+### Claude Code
+
+```text
+/plugin marketplace add actually-useful-ai/team
+/plugin install team@lukeslp-team
+```
+
+### Codex
+
+Import `https://github.com/actually-useful-ai/team` from the Plugin Directory,
+then install Team from the imported marketplace.
+
+### Cursor
+
+```sh
+cursor-agent plugin marketplace add https://github.com/actually-useful-ai/team
+cursor-agent
+```
+
+In the interactive agent, open `/plugin`, install Team at user scope, and it
+will be available to both the IDE and CLI.
+
+Each runtime has its own manifest; all three load the shared `skills/`
+directory. Cursor also loads the shared `agents/` directory explicitly.
 
 ## Usage
 
@@ -65,7 +90,7 @@ The full fan-out lives at `skills/consensus/` and is invoked by the cynic seat a
 
 ## Why a council and not a single pass
 
-A single LLM pass will produce an assessment that sounds confident regardless of merit. Adversarial review: especially from seats anchored to canonical frameworks (SRE Book, USE method, Klein pre-mortem, Annie Duke kill criteria), catches the failure modes a confident single pass misses. The subcommittee structure prevents the executive from drowning in ten voices.
+A single LLM pass will produce an assessment that sounds confident regardless of merit. Adversarial review: especially from seats anchored to canonical frameworks (SRE Book, USE method, Klein pre-mortem, Annie Duke kill criteria), catches the failure modes a confident single pass misses. The subcommittee structure prevents the executive from drowning in eleven separate voices.
 
 The design is sympathetic to the parallel-critics + single-synthesis pattern that holds up better in recent multi-agent research (arxiv 2509.05396, 2025) than round-table debate.
 
