@@ -22,7 +22,7 @@ silently replace a failed provider with another one.
 
 ## Transport discovery
 
-1. Detect native Claude Code, Grok, Ollama, and Claude Code configured for Z.ai.
+1. Detect native Claude Code, Grok, Ollama Cloud through its CLI, and Claude Code configured for Z.ai.
    Treat command presence as a lead, not proof of working authentication.
    These four native CLI routes are the consultation providers; do not use
    direct API requests, a gateway, or OpenAI/Luna as a substitute.
@@ -48,7 +48,8 @@ makes a paid call. There is no all-provider health sweep.
    and Grok. Respect explicitly named routes. `anthropic`/`claude` and
    `xai`/`grok` are aliases, never separate votes. Z.ai uses GLM through the
    Claude executable; executable name does not establish model family. Check
-   Ollama's selected model family and remote/cloud status before disclosure.
+   Ollama Cloud's selected model family before disclosure. Its native CLI route
+   requires an explicit `<model>:cloud` selection; never substitute local inference.
    Two aliases or hosts running the same underlying model do not add diversity.
 3. Launch independent calls in parallel. For Craft routes, pass the prompt on
    stdin with `craft-ask --json PROVIDER -` so prompt text is not shell-interpolated.
