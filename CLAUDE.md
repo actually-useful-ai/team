@@ -1,4 +1,4 @@
-# team v0.1.4
+# team v0.1.5
 
 Council-style codebase-assessment plugin for Claude Code, Codex, and Cursor. Its 6 skills route a codebase or question through 11 agent definitions and return a reviewed technical assessment.
 

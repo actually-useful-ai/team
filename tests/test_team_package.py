@@ -59,7 +59,7 @@ class TeamPackageTests(unittest.TestCase):
         )
         for manifest in manifests:
             self.assertEqual(manifest["name"], "team")
-            self.assertEqual(manifest["version"], "0.1.4")
+            self.assertEqual(manifest["version"], "0.1.5")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(manifest["author"]["name"], "Luke Steuber")
             for field in shared_fields:
@@ -69,7 +69,7 @@ class TeamPackageTests(unittest.TestCase):
         self.assertEqual(marketplace["name"], manifests[0]["name"])
         self.assertEqual(marketplace["version"], manifests[0]["version"])
         self.assertEqual(cursor_marketplace["name"], "lukeslp-team")
-        self.assertEqual(cursor_marketplace["metadata"]["version"], "0.1.4")
+        self.assertEqual(cursor_marketplace["metadata"]["version"], "0.1.5")
         self.assertEqual(cursor_marketplace["plugins"][0]["name"], "team")
         self.assertEqual(cursor_marketplace["plugins"][0]["source"], ".")
 
@@ -120,6 +120,13 @@ class TeamPackageTests(unittest.TestCase):
             "Never flatten",
             "native read-only agents rather than failing",
         ):
+            self.assertIn(expected, consensus)
+
+    def test_native_cli_diversity_and_missing_metadata_contract(self) -> None:
+        consensus = (ROOT / "skills/consensus/SKILL.md").read_text()
+        for expected in ("`claude`, `grok`, `zai`", "`ollama`", "never separate votes",
+                         "requested-only", "cannot count as verified independent model votes",
+                         "do not use", "gateway", "credentials/config separate"):
             self.assertIn(expected, consensus)
 
     def test_every_skill_description_has_trigger_context(self) -> None:

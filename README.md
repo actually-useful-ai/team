@@ -97,3 +97,11 @@ The design is sympathetic to the parallel-critics + single-synthesis pattern tha
 ## Author
 
 Luke Steuber · luke@lukesteuber.com · https://lukesteuber.com
+
+## Native CLI consensus
+
+Consensus selects Claude Code, Grok, Z.ai through an isolated Claude Code
+configuration, and Ollama. When Craft is installed, `craft-ask --list` owns route
+discovery. A missing CLI or login remains unavailable; no API or gateway
+substitution is made. Requested model names remain distinct from CLI-reported
+identity, and aliases of one provider do not count as independent voices.
