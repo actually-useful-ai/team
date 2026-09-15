@@ -96,6 +96,14 @@ A single LLM pass will produce an assessment that sounds confident regardless of
 
 The design is sympathetic to the parallel-critics + single-synthesis pattern that holds up better in recent multi-agent research (arxiv 2509.05396, 2025) than round-table debate.
 
+## Native CLI consensus
+
+Consensus selects Claude Code, Grok, Z.ai through an isolated Claude Code
+configuration, and Ollama Cloud through its native CLI. When Craft is installed, `craft-ask --list` owns route
+discovery. A missing CLI or login remains unavailable; no API or gateway
+substitution is made. Requested model names remain distinct from CLI-reported
+identity, and aliases of one provider do not count as independent voices.
+
 ## License
 
 [MIT](LICENSE).
