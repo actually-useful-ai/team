@@ -1,6 +1,8 @@
-# team
+# Team
 
 Council-style codebase-assessment plugin for Claude Code, Codex, and Cursor.
+
+[![Installation guide](https://img.shields.io/badge/Install-Get_started-2563eb?style=flat-square)](#install) [![MIT code license](https://img.shields.io/badge/Code-MIT-181717?style=flat-square)](LICENSE) [![Actually Useful AI collection](https://img.shields.io/badge/Actually_Useful_AI-Collection-181717?style=flat-square)](https://github.com/actually-useful-ai)
 
 Point it at a codebase. An 11-seat team across three subcommittees (research, technical, skeptics) plus a standalone legal red-flag check decides what it is, where it fits, what breaks it, what kills it, and how to know whether the assessment is any good.
 
@@ -94,6 +96,13 @@ A single LLM pass will produce an assessment that sounds confident regardless of
 
 The design is sympathetic to the parallel-critics + single-synthesis pattern that holds up better in recent multi-agent research (arxiv 2509.05396, 2025) than round-table debate.
 
-## Author
+## License
 
-Luke Steuber · luke@lukesteuber.com · https://lukesteuber.com
+[MIT](LICENSE).
+
+## Around here
+
+[Luke Steuber](https://github.com/lukeslp) · [Data Poems](https://github.com/data-poems) · [Ambient Time](https://github.com/ambient-time) · [Actually Useful AI](https://github.com/actually-useful-ai) · [One Impossible Thing](https://github.com/one-impossible-thing)
+
+Made by [Luke Steuber](https://lukesteuber.com). Questions or collaboration:
+[luke@lukesteuber.com](mailto:luke@lukesteuber.com).
