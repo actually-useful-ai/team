@@ -4,11 +4,15 @@ Council-style codebase-assessment plugin for Claude Code, Codex, and Cursor. Its
 
 ## Architecture
 
-**One command, one mode (for now):**
+Six shared skills provide the full council and focused reviews:
 
-- `/team src/` → council assesses the codebase
-- `/team` (no args) → council assesses the current directory
-- `/team "Should we open-source this?"` → council debate on a question
+- `team`: assess the current directory, a named codebase, or a question.
+- `research`, `technical`, `skeptics`: run the corresponding committee.
+- `consensus`: collect explicitly requested outside-model opinions.
+- `doubt`: challenge a current approach.
+
+Use the namespaced entry point exposed by the runtime, such as `/team:team` or
+`/team:consensus`. The `skills/` definitions own each protocol.
 
 ## The team
 
@@ -60,7 +64,22 @@ scripts/banner.sh        ASCII banners
 5. Dissenting opinions are always preserved.
 6. Consultants are best-effort. Skill works fine when external models are unreachable.
 7. Paid outside-model consultants require explicit external-consult or fan-out authorization. Craft Ask may provide them when installed, but Team retains a native fallback.
+8. Consensus uses native Claude Code, Grok, Ollama Cloud, or Claude Code configured
+   separately for Z.ai. A missing or failed outside voice stays unavailable;
+   no API, gateway, or alternate provider silently replaces it. Native read-only
+   agents can support the council when Craft is absent, but are not evidence of
+   an outside-model consultation. See [the consensus protocol](skills/consensus/SKILL.md)
+   for route discovery and provider/model provenance.
 
 ## Development
 
-Pure-markdown plugin. No build step. Edit the `.md` files directly. Banner script requires `pyfiglet`, `toilet`, or `figlet` (falls back to plain text).
+The plugin has no build step. After editing its Markdown or package metadata, run:
+
+```sh
+python3 -B -m unittest discover -s tests -v
+```
+
+The package tests cover runtime manifests, skill inventory, and Craft Ask
+integration guidance. They do not call providers or establish live authentication.
+The banner script uses `pyfiglet`, `toilet`, or `figlet` when available and falls
+back to plain text.
