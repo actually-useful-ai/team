@@ -56,6 +56,9 @@ makes a paid call. There is no all-provider health sweep.
    Two aliases or hosts running the same underlying model do not add diversity.
 3. Launch independent calls in parallel. For Craft routes, pass the prompt on
    stdin with `craft-ask --json PROVIDER -` so prompt text is not shell-interpolated.
+   A voice that reasons at length can outlast the default deadline on a full
+   brief; lower its effort with `--effort low` or raise `ASK_TIMEOUT` for that
+   call instead of repeating it unchanged.
 4. Record the actual provider/model provenance reported by each response.
    Keep `requested_model` separate from `model`; `requested-only` answers have
    unverified identity and cannot count as verified independent model votes.
