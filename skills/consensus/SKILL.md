@@ -22,9 +22,9 @@ silently replace a failed provider with another one.
 
 ## Transport discovery
 
-1. Detect native Claude Code, Grok, Ollama Cloud through its CLI, and Claude Code configured for Z.ai.
-   Treat command presence as a lead, not proof of working authentication.
-   These four native CLI routes are the consultation providers; do not use
+1. Detect native Claude Code, Grok, Ollama Cloud through its CLI, Claude Code configured for Z.ai,
+   and Muse Code. Treat command presence as a lead, not proof of working authentication.
+   These five native CLI routes are the consultation providers; do not use
    direct API requests, a gateway, or OpenAI/Luna as a substitute.
 2. If `craft-ask` is available, run `craft-ask --list` and
    `craft-ask --status`. These commands make no inference calls. The versioned
@@ -32,7 +32,9 @@ silently replace a failed provider with another one.
 3. When Craft is unavailable, use native read-only agents only and state the
    limitation. Use each installed CLI's documented noninteractive mode with
    tools disabled, a scratch working directory, stdin prompts, and a timeout.
-   Keep Z.ai credentials/config separate from the ordinary Claude login. If
+   Keep Z.ai credentials/config separate from the ordinary Claude login. Muse
+   Code reads a prompt only from a regular file, so give it a private file in
+   the scratch directory and an empty workspace instead of stdin. If
    these constraints cannot be enforced, report that route unavailable. Team
    remains independently usable and must not depend on a private Craft path.
 
@@ -44,10 +46,11 @@ makes a paid call. There is no all-provider health sweep.
 1. Frame one compact prompt asking each voice for the same numbered verdicts,
    confidence, one-line reason, and strongest objection.
 2. Choose two or three genuinely diverse voices among `claude`, `grok`, `zai`,
-   and `ollama`. In Claude, prefer Grok and Z.ai; in Codex/OpenAI, prefer Claude
-   and Grok. Respect explicitly named routes. `anthropic`/`claude` and
-   `xai`/`grok` are aliases, never separate votes. Z.ai uses GLM through the
-   Claude executable; executable name does not establish model family. Check
+   `muse`, and `ollama`. In Claude, prefer Grok and Z.ai; in Codex/OpenAI, prefer Claude
+   and Grok. Respect explicitly named routes. `anthropic`/`claude`,
+   `xai`/`grok`, and `meta`/`muse` are aliases, never separate votes. Z.ai uses GLM through the
+   Claude executable; executable name does not establish model family. Muse is
+   Meta's own family, distinct from the other four. Check
    Ollama Cloud's selected model family before disclosure. Its native CLI route
    requires an explicit `<model>:cloud` selection; never substitute local inference.
    Two aliases or hosts running the same underlying model do not add diversity.
