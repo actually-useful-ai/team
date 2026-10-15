@@ -1,4 +1,4 @@
-# team v0.1.6
+# team v0.1.7
 
 Council-style codebase-assessment plugin for Claude Code, Codex, and Cursor. Its 6 skills route a codebase or question through 11 agent definitions and return a reviewed technical assessment.
 
@@ -64,7 +64,7 @@ scripts/banner.sh        ASCII banners
 5. Dissenting opinions are always preserved.
 6. Consultants are best-effort. Skill works fine when external models are unreachable.
 7. Paid outside-model consultants require explicit external-consult or fan-out authorization. Craft Ask may provide them when installed, but Team retains a native fallback.
-8. Consensus uses native Claude Code, Grok, Ollama Cloud, or Claude Code configured
+8. Consensus uses native Claude Code, Grok, Ollama Cloud, Muse Code, or Claude Code configured
    separately for Z.ai. A missing or failed outside voice stays unavailable;
    no API, gateway, or alternate provider silently replaces it. Native read-only
    agents can support the council when Craft is absent, but are not evidence of
