@@ -1,4 +1,4 @@
-# team v0.1.7
+# team v0.1.8
 
 Council-style codebase-assessment plugin for Claude Code, Codex, and Cursor. Its 6 skills route a codebase or question through 11 agent definitions and return a reviewed technical assessment.
 
@@ -8,11 +8,11 @@ Six shared skills provide the full council and focused reviews:
 
 - `team`: assess the current directory, a named codebase, or a question.
 - `research`, `technical`, `skeptics`: run the corresponding committee.
-- `consensus`: collect explicitly requested outside-model opinions.
+- `panel`: collect explicitly requested outside-model opinions (formerly `consensus`).
 - `doubt`: challenge a current approach.
 
 Use the namespaced entry point exposed by the runtime, such as `/team:team` or
-`/team:consensus`. The `skills/` definitions own each protocol.
+`/team:panel`. The `skills/` definitions own each protocol.
 
 ## The team
 
@@ -50,7 +50,7 @@ skills/                  6 skill entry points
   technical/             Technical committee only
   skeptics/              Skeptics committee only
   research/              Research phase only
-  consensus/             Read-only second opinions from external models
+  panel/                 Read-only second opinions from external models
   doubt/                 Targeted challenge to a current approach
 scripts/banner.sh        ASCII banners
 ```
@@ -64,11 +64,11 @@ scripts/banner.sh        ASCII banners
 5. Dissenting opinions are always preserved.
 6. Consultants are best-effort. Skill works fine when external models are unreachable.
 7. Paid outside-model consultants require explicit external-consult or fan-out authorization. Craft Ask may provide them when installed, but Team retains a native fallback.
-8. Consensus uses native Claude Code, Grok, Ollama Cloud, Muse Code, or Claude Code configured
+8. The panel uses native Claude Code, Grok, Ollama Cloud, Muse Code, or Claude Code configured
    separately for Z.ai. A missing or failed outside voice stays unavailable;
    no API, gateway, or alternate provider silently replaces it. Native read-only
    agents can support the council when Craft is absent, but are not evidence of
-   an outside-model consultation. See [the consensus protocol](skills/consensus/SKILL.md)
+   an outside-model consultation. See [the panel protocol](skills/panel/SKILL.md)
    for route discovery and provider/model provenance.
 
 ## Development

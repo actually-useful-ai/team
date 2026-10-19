@@ -100,7 +100,7 @@ Output: one Technical committee report covering fit, scaling risks, failure reco
 
 **Skeptics committee** (chair: cynic)
 - `breaker`: adversarial attack on the proposal (concrete failure scenarios only).
-- `cynic`: pre-mortem (Klein 2007), kill criteria (Annie Duke), Amazon working-backwards critique. Must always dissent. May consult `/consensus` for a full external panel.
+- `cynic`: pre-mortem (Klein 2007), kill criteria (Annie Duke), Amazon working-backwards critique. Must always dissent. May consult `/panel` for a full external panel.
 
 Output: one Skeptics committee report covering top attacks, kill criteria, and the strongest counterargument the rest of the team is ignoring.
 
@@ -225,4 +225,4 @@ A seat declares its preferred consultants in its agent file. The skill calls the
 - **`/extract`**: quick single-pass assessment when you don't need the council.
 - **`/elegance`**: code refinement or generic council debate.
 - **`/doubt`**: challenge a single decision, not assess a whole codebase.
-- **`/consensus`**: second opinions only, no synthesis.
+- **`/panel`**: second opinions only, no synthesis.

@@ -71,7 +71,7 @@ A short verdict from the executive chair, structured as:
 
 **Skeptics**
 - `breaker`: adversarial attack on the assessment. Concrete failure scenarios only.
-- `cynic`: pre-mortem (Klein 2007), kill criteria (Annie Duke), Amazon working-backwards critique. Must always disagree. Optional consult: full `/consensus` fan-out.
+- `cynic`: pre-mortem (Klein 2007), kill criteria (Annie Duke), Amazon working-backwards critique. Must always disagree. Optional consult: full `/panel` fan-out.
 
 **Legal check (standalone)**
 - `legal`: IP, licensing, attribution. A red-flag list of license/IP blockers that would stop the project from being shipped or open-sourced. Looks at every dep's license and the project's own.
@@ -88,7 +88,7 @@ Craft's optional `craft-ask` entry point. Craft owns provider/model routing and
 provenance; Team retains its native fallback and works without Craft or external
 credentials.
 
-The full fan-out lives at `skills/consensus/` and is invoked by the cynic seat as the panel of last resort.
+The full fan-out lives at `skills/panel/` and is invoked by the cynic seat as the panel of last resort.
 
 ## Why a council and not a single pass
 
@@ -96,9 +96,9 @@ A single LLM pass will produce an assessment that sounds confident regardless of
 
 The design is sympathetic to the parallel-critics + single-synthesis pattern that holds up better in recent multi-agent research (arxiv 2509.05396, 2025) than round-table debate.
 
-## Native CLI consensus
+## Native CLI panel
 
-Consensus selects Claude Code, Grok, Z.ai through an isolated Claude Code
+The panel selects Claude Code, Grok, Z.ai through an isolated Claude Code
 configuration, Muse Code, and Ollama Cloud through its native CLI. When Craft is installed, `craft-ask --list` owns route
 discovery. A missing CLI or login remains unavailable; no API or gateway
 substitution is made. Requested model names remain distinct from CLI-reported

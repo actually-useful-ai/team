@@ -11,7 +11,7 @@ Targeted challenge to the current approach with explicit alternatives.
 ## Contract
 
 - Primary route: `inspect -> parallel-challenge -> compare -> synthesize`
-- Suggested handoffs: /thinkagain, /team, /consensus
+- Suggested handoffs: /thinkagain, /team, /panel
 - Category: `reconsideration`
 - Read only: `yes`
 - Uses parallelism: `yes`

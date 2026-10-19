@@ -15,8 +15,8 @@ PACKAGE_MANIFESTS = (
     ROOT / ".cursor-plugin/plugin.json",
 )
 EXPECTED_SKILLS = {
-    "consensus",
     "doubt",
+    "panel",
     "research",
     "skeptics",
     "team",
@@ -59,7 +59,7 @@ class TeamPackageTests(unittest.TestCase):
         )
         for manifest in manifests:
             self.assertEqual(manifest["name"], "team")
-            self.assertEqual(manifest["version"], "0.1.7")
+            self.assertEqual(manifest["version"], "0.1.8")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(manifest["author"]["name"], "Luke Steuber")
             for field in shared_fields:
@@ -69,7 +69,7 @@ class TeamPackageTests(unittest.TestCase):
         self.assertEqual(marketplace["name"], manifests[0]["name"])
         self.assertEqual(marketplace["version"], manifests[0]["version"])
         self.assertEqual(cursor_marketplace["name"], "lukeslp-team")
-        self.assertEqual(cursor_marketplace["metadata"]["version"], "0.1.7")
+        self.assertEqual(cursor_marketplace["metadata"]["version"], "0.1.8")
         self.assertEqual(cursor_marketplace["plugins"][0]["name"], "team")
         self.assertEqual(cursor_marketplace["plugins"][0]["source"], ".")
 
@@ -92,10 +92,10 @@ class TeamPackageTests(unittest.TestCase):
             self.assertIn(f"{len(agent_names)} agent", content)
             self.assertIn(f"{len(agent_names)}-seat", content)
 
-    def test_consensus_discovers_craft_without_private_dependency(self) -> None:
-        consensus = (ROOT / "skills/consensus/SKILL.md").read_text()
+    def test_panel_discovers_craft_without_private_dependency(self) -> None:
+        panel = (ROOT / "skills/panel/SKILL.md").read_text()
         for expected in ("craft-ask --list", "craft-ask --status", "native read-only agents"):
-            self.assertIn(expected, consensus)
+            self.assertIn(expected, panel)
         for stale in (
             "~/.claude/bin/ask.sh",
             "ask.sh --health",
@@ -103,7 +103,7 @@ class TeamPackageTests(unittest.TestCase):
             "grok-4.3",
             "gpt-5.4",
         ):
-            self.assertNotIn(stale, consensus)
+            self.assertNotIn(stale, panel)
 
     def test_outside_calls_require_explicit_authorization(self) -> None:
         team = (ROOT / "skills/team/SKILL.md").read_text()
@@ -113,21 +113,21 @@ class TeamPackageTests(unittest.TestCase):
             self.assertIn("craft-ask --list", content)
         self.assertIn("`/team` alone does not", team)
 
-    def test_consensus_keeps_provenance_dissent_and_fallback(self) -> None:
-        consensus = (ROOT / "skills/consensus/SKILL.md").read_text()
+    def test_panel_keeps_provenance_dissent_and_fallback(self) -> None:
+        panel = (ROOT / "skills/panel/SKILL.md").read_text()
         for expected in (
             "actual provider/model provenance",
             "Never flatten",
             "native read-only agents rather than failing",
         ):
-            self.assertIn(expected, consensus)
+            self.assertIn(expected, panel)
 
     def test_native_cli_diversity_and_missing_metadata_contract(self) -> None:
-        consensus = (ROOT / "skills/consensus/SKILL.md").read_text()
+        panel = (ROOT / "skills/panel/SKILL.md").read_text()
         for expected in ("`claude`, `grok`, `zai`", "`muse`", "`ollama`", "never separate votes",
                          "requested-only", "cannot count as verified independent model votes",
                          "do not use", "gateway", "credentials/config separate", "never substitute local inference"):
-            self.assertIn(expected, consensus)
+            self.assertIn(expected, panel)
 
     def test_every_skill_description_has_trigger_context(self) -> None:
         for skill in sorted((ROOT / "skills").glob("*/SKILL.md")):

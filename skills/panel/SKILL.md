@@ -1,18 +1,21 @@
 ---
-name: consensus
-description: "Collect and compare bounded read-only opinions from external models. Use when Luke explicitly asks for consensus, multiple outside-model views, or external fan-out on a question."
+name: panel
+description: "Collect and compare bounded read-only opinions from external models. Use when Luke explicitly asks for a panel, second opinions from other models, multiple outside-model views, or external fan-out on a question. Formerly /consensus."
 allowed-tools: Read, Grep, Glob, Bash, Agent
 ---
 
-# /consensus
+# /panel
 
 Collect a small, diverse set of outside opinions, preserve disagreement, and
 return advisory evidence. This skill never edits the target and never lets an
 outside response trigger an action on its own.
 
+This skill was called `/consensus` through 0.1.7. It was renamed so it is not
+confused with Consensus, Luke's separate personal record.
+
 ## Authorization and disclosure
 
-Explicit `/consensus`, outside-model, or external fan-out wording authorizes the
+Explicit `/panel`, outside-model, or external fan-out wording authorizes the
 bounded calls needed for this skill. A normal `/team` run does not. Before a
 call, reduce repository context to the smallest useful brief. Never send
 credentials, private keys, broad directory contents, or an entire repository.
@@ -71,7 +74,7 @@ makes a paid call. There is no all-provider health sweep.
 ## Output
 
 ```markdown
-## Consensus on <topic>
+## Panel on <topic>
 
 **Voices:** <actual provider/model labels>
 **Unavailable:** <route and classified reason>
@@ -86,7 +89,7 @@ makes a paid call. There is no all-provider health sweep.
 
 ## Composition
 
-Consensus is an advisory evidence provider for `/team`; the executive retains
+The panel is an advisory evidence provider for `/team`; the executive retains
 the verdict and preserves dissent. Craft's Ask owns provider routing and model
 truth when installed. Domain, accessibility, legal, and security skills retain
 authority over their evidence. Missing Craft degrades
