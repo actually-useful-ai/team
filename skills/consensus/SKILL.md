@@ -1,6 +1,6 @@
 ---
 name: consensus
-description: "Collect and compare bounded read-only opinions from external models. Use when Luke explicitly asks for consensus, multiple outside-model views, or external fan-out on a question."
+description: "Collect and compare bounded read-only opinions from external models. Use when Luke explicitly asks for a consensus of models, multiple outside-model views, or external fan-out on a question. Do not use for reading from or reporting to Luke's private Consensus record (`consensus read`, `consensus report`, the Biography page)."
 allowed-tools: Read, Grep, Glob, Bash, Agent
 ---
 
