@@ -59,7 +59,7 @@ class TeamPackageTests(unittest.TestCase):
         )
         for manifest in manifests:
             self.assertEqual(manifest["name"], "team")
-            self.assertEqual(manifest["version"], "0.1.7")
+            self.assertEqual(manifest["version"], "0.1.8")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(manifest["author"]["name"], "Luke Steuber")
             for field in shared_fields:
@@ -69,7 +69,7 @@ class TeamPackageTests(unittest.TestCase):
         self.assertEqual(marketplace["name"], manifests[0]["name"])
         self.assertEqual(marketplace["version"], manifests[0]["version"])
         self.assertEqual(cursor_marketplace["name"], "lukeslp-team")
-        self.assertEqual(cursor_marketplace["metadata"]["version"], "0.1.7")
+        self.assertEqual(cursor_marketplace["metadata"]["version"], "0.1.8")
         self.assertEqual(cursor_marketplace["plugins"][0]["name"], "team")
         self.assertEqual(cursor_marketplace["plugins"][0]["source"], ".")
 
@@ -128,6 +128,11 @@ class TeamPackageTests(unittest.TestCase):
                          "requested-only", "cannot count as verified independent model votes",
                          "do not use", "gateway", "credentials/config separate", "never substitute local inference"):
             self.assertIn(expected, consensus)
+
+    def test_consensus_description_excludes_the_consensus_record(self) -> None:
+        frontmatter = (ROOT / "skills/consensus/SKILL.md").read_text().split("---", 2)[1]
+        self.assertIn("Consensus record", frontmatter)
+        self.assertIn("Do not use", frontmatter)
 
     def test_every_skill_description_has_trigger_context(self) -> None:
         for skill in sorted((ROOT / "skills").glob("*/SKILL.md")):
